@@ -39,7 +39,7 @@ class Creature extends Card {
 
 // Основа для утки.
 class Duck extends Creature {
-    constructor(name = "Мирная утка", maxPower = 2, image) {
+    constructor(name = "Мирная утка", maxPower = 2, image = null) {
         super(name, maxPower, image);
     }
 
@@ -56,34 +56,29 @@ class Duck extends Creature {
 
 // Основа для собаки.
 class Dog extends Creature {
-    constructor(name = "Пес-бандит", maxPower = 3, image) {
+    constructor(name = "Пес-бандит", maxPower = 3, image = null) {
         super(name, maxPower, image);
     }
 }
 
 class Trasher extends Dog {
-    constructor() {
-        super();
-        this.name = 'Trasher';
-        this.maxPower = 5;
-        this.currentPower = 5;
+    constructor(name = 'Trasher', maxPower = 5, image = null) {
+        super(name, maxPower, image);
     }
     
     modifyTakenDamage(value, fromCard, gameContext, continuation) {
         this.view.signalAbility(() => continuation(value - 1));
     }
-    
+
     getDescriptions() {
-        return super.getDescriptions().concat([super.getInheritanceDescription(this)]);
+        return [getCreatureDescription(this), ...super.getDescriptions()];
     }
 }
 
 class Gatling extends Creature {
-    constructor() {
-        super();
-        this.name = 'Gatling';
-        this.maxPower = 6;
-        this.currentPower = 6;
+    constructor(name = "Gatling", maxPower = 6, image = null) {
+        super(name, maxPower, image);
+        this.currentPower = 2;
     }
     
     attack(gameContext, continuation) {
