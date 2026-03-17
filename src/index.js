@@ -13,6 +13,10 @@ function isDog(card) {
     return card instanceof Dog;
 }
 
+function isLad(card) {
+    return card instanceof Lad;
+}
+
 // Дает описание существа по схожести с утками и собаками
 function getCreatureDescription(card) {
     if (isDuck(card) && isDog(card)) {
@@ -20,6 +24,12 @@ function getCreatureDescription(card) {
     }
     if (isDuck(card)) {
         return 'Утка';
+    }
+    if (isLad(card) && (
+        Lad.prototype.hasOwnProperty('modifyDealedDamageToCreature')
+        || Lad.prototype.hasOwnProperty('modifyTakenDamage')
+    )) {
+        return 'Чем их больше, тем они сильнее';
     }
     if (isDog(card)) {
         return 'Собака';
@@ -71,7 +81,7 @@ class Trasher extends Dog {
     }
 
     getDescriptions() {
-        return [getCreatureDescription(this), ...super.getDescriptions()];
+        return ['Trasher', ...super.getDescriptions()];
     }
 }
 
@@ -84,7 +94,8 @@ class Gatling extends Creature {
     attack(gameContext, continuation) {
         const taskQueue = new TaskQueue();
         
-        for (let oppositeCard of gameContext.oppositePlayer.table) {
+        for (let pos = 0; pos < gameContext.oppositePlayer.table.length; pos++) {
+            const oppositeCard = gameContext.oppositePlayer.table[pos];
             taskQueue.push(onDone => this.view.showAttack(onDone));
             taskQueue.push(onDone => {
                 if (oppositeCard) {
@@ -95,6 +106,53 @@ class Gatling extends Creature {
             });
         }
         taskQueue.continueWith(continuation);
+    }
+}
+
+class Lad extends Dog {
+    constructor(name = "Браток", maxPower = 2, image = null) {
+        super(name, maxPower, image);
+    }
+
+    doAfterComingIntoPlay(gameContext, continuation) {
+        Lad.setInGameCount(Lad.getInGameCount() + 1);
+        continuation();
+    }
+    
+    doBeforeRemoving(continuation) {
+        Lad.setInGameCount(Lad.getInGameCount() - 1);
+        continuation();
+    }
+
+    modifyDealedDamageToCreature(value, toCard, gameContext, continuation) {
+        continuation(value + Lad.getBonus());
+    };
+
+    modifyTakenDamage(value, fromCard, gameContext, continuation) {
+        continuation(Math.max(value - Lad.getBonus(), 0));
+    };
+    
+    getDescriptions() {
+        return ['Браток', ...super.getDescriptions()];
+    }
+    
+    static getBonus() {
+        const v = this.getInGameCount();
+        return v * (v + 1) / 2;
+    }
+    
+    static getInGameCount() {
+        return this.inGameCount || 0;
+    }
+    
+    static setInGameCount(value) {
+        this.inGameCount = value;
+    }
+}
+
+class Rogue extends Creature {
+    constructor(name = "Изгой", maxPower = 3, image = null) {
+        super(name, maxPower, image);
     }
 }
 
@@ -110,7 +168,9 @@ const seriffStartDeck = [
 const banditStartDeck = [
     new Trasher(),
     new Dog(),
-    new Dog(),
+    new Lad(),
+    new Lad(),
+    new Lad(),
 ];
 
 
