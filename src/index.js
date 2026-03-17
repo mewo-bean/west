@@ -40,6 +40,47 @@ function Duck() {
 function Dog() {
 }
 
+class Trasher extends Dog {
+    constructor() {
+        super();
+        this.name = 'Trasher';
+        this.maxPower = 5;
+        this.currentPower = 5;
+    }
+    
+    modifyTakenDamage(value, fromCard, gameContext, continuation) {
+        this.view.signalAbility(() => continuation(value - 1));
+    }
+    
+    getDescriptions() {
+        return super.getDescriptions().concat([super.getInheritanceDescription(this)]);
+    }
+}
+
+class Gatling extends Creature {
+    constructor() {
+        super();
+        this.name = 'Gatling';
+        this.maxPower = 6;
+        this.currentPower = 6;
+    }
+    
+    attack(gameContext, continuation) {
+        const taskQueue = new TaskQueue();
+        
+        for (let oppositeCard of gameContext.oppositePlayer.table) {
+            taskQueue.push(onDone => this.view.showAttack(onDone));
+            taskQueue.push(onDone => {
+                if (oppositeCard) {
+                    this.dealDamageToCreature(this.currentPower, oppositeCard, gameContext, onDone);
+                } else {
+                    onDone();
+                }
+            });
+        }
+        taskQueue.continueWith(continuation);
+    }
+}
 
 // Колода Шерифа, нижнего игрока.
 const seriffStartDeck = [
@@ -50,7 +91,7 @@ const seriffStartDeck = [
 
 // Колода Бандита, верхнего игрока.
 const banditStartDeck = [
-    new Card('Бандит', 3),
+    new Trasher(),
 ];
 
 
