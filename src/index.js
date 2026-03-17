@@ -27,17 +27,39 @@ function getCreatureDescription(card) {
     return 'Существо';
 }
 
-
+class Creature extends Card {
+    getDescriptions() {
+        getCreatureDescription()
+        return 
+    }
+}
 
 // Основа для утки.
-function Duck() {
-    this.quacks = function () { console.log('quack') };
-    this.swims = function () { console.log('float: both;') };
+class Duck extends Creature {
+    constructor() {
+        super();
+        this.name = "Мирная утка";
+        this.currentPower = 2;
+    }
+
+    quacks() {
+        console.log('quack')
+    }
+
+    swims() {
+        console.log('float: both;')
+    }
+
 }
 
 
 // Основа для собаки.
-function Dog() {
+class Dog extends Creature {
+    constructor() {
+        super();
+        this.name = "Пес-бандит";
+        this.currentPower = 3;
+    }
 }
 
 class Trasher extends Dog {
@@ -84,9 +106,9 @@ class Gatling extends Creature {
 
 // Колода Шерифа, нижнего игрока.
 const seriffStartDeck = [
-    new Card('Мирный житель', 2),
-    new Card('Мирный житель', 2),
-    new Card('Мирный житель', 2),
+    new Duck(),
+    new Duck(),
+    new Duck(),
 ];
 
 // Колода Бандита, верхнего игрока.
